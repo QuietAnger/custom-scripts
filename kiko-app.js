@@ -3,7 +3,13 @@
         return alert('Необхідно перейти на адресу https://www.kikocosmetics.com/en-gb/ та повторити дію')
 
     const templateId = 'kiko-extension'
-    window.kikoProductName = document.querySelector('.ProductDetails__Title').innerText;
+
+    const getProductName = () => {
+        let name = document.querySelector('.ProductDetails__Title').innerText || '';
+        name = name.replace(/\s\s+/g, ' ').trim();
+        return name
+    }
+    window.kikoProductName = getProductName();
     window.kikoProductCategory = document.querySelector('.Breadcrumbs ').innerText;
     window.kikoExtensionRunning = !window.kikoExtensionRunning;
     console.log(window.kikoExtensionRunning ? 'running' : 'stopped')
@@ -11,10 +17,9 @@
     window.kikoShades = [];
 
     function downloadTextFile(filename, text) {
-        console.log(filename, text)
         const anchor = document.createElement('a');
         anchor.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-        anchor.download = filename;
+        anchor.download = filename + '.json';
         anchor.style.display = 'none';
         document.body.appendChild(anchor);
         anchor.click();
@@ -26,36 +31,36 @@
     function createStyles() {
         const style = document.createElement('style');
         style.textContent = `
-        #kiko-extension {
-            text-align: center;
-            position: fixed;
-            z-index: 1024; 
-            bottom: 16px;   
-            left: 16px; 
-            background: #212121; 
-            border-radius: 8px; 
-            display: flex; 
-            flex-direction: column;
-            padding: 8px;
-        }
-        #kiko-extension > button {
-            color: #fff; 
-            font-size: 16px;
-            border: 1px solid #fec503;
-             border-radius: 8px;
-            padding: 10px 40px;
-            margin: 4px
-        }
-        
-        #kiko-extension > button:hover{
-            text-decoration: underline;
-        }
-        #kiko-extension > #progress {
-            color: #fec503;
-            font-size: 12px;
-            margin: 4px
-        }
-        `;
+            #kiko-extension {
+                text-align: center;
+                position: fixed;
+                z-index: 1024; 
+                bottom: 16px;   
+                left: 16px; 
+                background: #212121; 
+                border-radius: 8px; 
+                display: flex; 
+                flex-direction: column;
+                padding: 8px;
+            }
+            #kiko-extension > button {
+                color: #fff; 
+                font-size: 16px;
+                border: 1px solid #fec503;
+                 border-radius: 8px;
+                padding: 10px 40px;
+                margin: 4px
+            }
+            
+            #kiko-extension > button:hover{
+                text-decoration: underline;
+            }
+            #kiko-extension > #progress {
+                color: #fec503;
+                font-size: 12px;
+                margin: 4px
+            }
+            `;
         document.head.appendChild(style);
         console.log('Styles attached!')
     }
@@ -76,7 +81,7 @@
             const category = window.kikoProductCategory;
             const type = 'images'
             const json = JSON.stringify({productName, category, type, content}, null, 2);
-            downloadTextFile('Зображення ' + productName, json);
+            downloadTextFile(`Зображення ${productName}`, json);
         } catch (e) {
             console.log(e);
         }
@@ -139,7 +144,22 @@
         try {
             const images = []
             const dropDown = document.querySelector('.Dropdown__List');
-            const availableShadeButtons = dropDown.querySelectorAll('.js-shade-dropdown-option');
+            const availableShadeButtons = dropDown?.querySelectorAll('.js-shade-dropdown-option') || [];
+
+            if (!availableShadeButtons.length) {
+                const sameShadeImages = [];
+                const zoomImg = document.querySelectorAll('.zoomImg');
+                zoomImg.forEach(img => {
+                    const src = makeItUrl(img.src);
+                    sameShadeImages.push(src)
+                })
+                const name = window.kikoProductName;
+                images.push({
+                    name,
+                    src: sameShadeImages
+                })
+                return images
+            }
 
             for (let i = 0; i < availableShadeButtons.length; i++) {
                 const sameShadeImages = []
@@ -170,11 +190,11 @@
             return uninstall();
         try {
             const template = `
-                <div id="${templateId}">
-                    <button id="kiko-images">Завантажити зображення</button>
-                    <button id="kiko-shades">Завантажити відтінки (${window.kikoShades?.length || 0})</button>
-                    <div id="progress">${window.kikoProgress ? "Прогрес: " + window.kikoProgress : ''}</div>
-                </div>`
+                    <div id="${templateId}">
+                        <button id="kiko-images">Завантажити зображення</button>
+                        <button id="kiko-shades">Завантажити відтінки (${window.kikoShades?.length || 0})</button>
+                        <div id="progress">${window.kikoProgress ? "Прогрес: " + window.kikoProgress : ''}</div>
+                    </div>`
             document.querySelector('#' + templateId)?.remove();
             document.body.insertAdjacentHTML('beforeend', template);
 
