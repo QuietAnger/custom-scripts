@@ -2,6 +2,7 @@
     if (!(window.location.host).includes('kikocosmetics'))
         return alert('Необхідно перейти на адресу https://www.kikocosmetics.com/en-gb/ та повторити дію')
 
+    console.log('kiko-app-v2.0')
     const templateId = 'kiko-extension'
     const getProductName = () => {
         let name = document.querySelector('.ProductDetails__Title').innerText || '';
