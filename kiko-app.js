@@ -5,7 +5,8 @@
     const templateId = 'kiko-extension'
     window.kikoProductName = document.querySelector('.ProductDetails__Title').innerText;
     window.kikoProductCategory = document.querySelector('.Breadcrumbs ').innerText;
-    window.kikoExtensionRunning = !window.kikoExtensionRunning; // true
+    window.kikoExtensionRunning = !window.kikoExtensionRunning;
+    console.log(window.kikoExtensionRunning ? 'running' : 'stopped')
     window.kikoImages = [];
     window.kikoShades = [];
 
