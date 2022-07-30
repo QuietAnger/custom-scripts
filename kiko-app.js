@@ -167,7 +167,7 @@
 
     function findProductImages() {
         if (!window.kikoExtensionRunning)
-            return;
+            return uninstall();
         try {
             const template = `
                 <div id="${templateId}">
