@@ -3,7 +3,6 @@
         return alert('Необхідно перейти на адресу https://www.kikocosmetics.com/en-gb/ та повторити дію')
 
     const templateId = 'kiko-extension'
-
     const getProductName = () => {
         let name = document.querySelector('.ProductDetails__Title').innerText || '';
         name = name.replace(/\s\s+/g, ' ').trim();
@@ -64,7 +63,6 @@
         document.head.appendChild(style);
         console.log('Styles attached!')
     }
-
     createStyles();
 
 
@@ -79,7 +77,7 @@
             const content = await findImages();
             const productName = window.kikoProductName;
             const category = window.kikoProductCategory;
-            const type = 'images'
+            const type = 'products'
             const json = JSON.stringify({productName, category, type, content}, null, 2);
             downloadTextFile(`Зображення ${productName}`, json);
         } catch (e) {
@@ -99,16 +97,6 @@
             console.log(e);
         }
     }
-
-    // async function downloadAll(name = '') {
-    //     try {
-    //         const name = window.kikoProductName;
-    //         const json = JSON.stringify([...window.kikoImages, ...window.kikoShades], null, 2);
-    //         downloadTextFile('Усі зображення ' + name, json)
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    // }
 
     function findShades() {
         try {
@@ -164,11 +152,11 @@
             for (let i = 0; i < availableShadeButtons.length; i++) {
                 const sameShadeImages = []
                 const btn = availableShadeButtons[i];
-                const name = btn.innerText;
+                const optionText = btn.querySelector('.OptionText');
+                const name = optionText.textContent;
                 btn.click();
                 window.kikoProgress = `${i + 1}/${availableShadeButtons.length}`;
                 await delay(1000);
-                console.log(777, 'resume')
                 const zoomImg = document.querySelectorAll('.zoomImg');
                 zoomImg.forEach(img => {
                     const src = makeItUrl(img.src);
@@ -193,16 +181,13 @@
                     <div id="${templateId}">
                         <button id="kiko-images">Завантажити зображення</button>
                         <button id="kiko-shades">Завантажити відтінки (${window.kikoShades?.length || 0})</button>
-                        <div id="progress">${window.kikoProgress ? "Прогрес: " + window.kikoProgress : ''}</div>
+                        <div id="progress">${window.kikoProgress ? "Опрацьовано: " + window.kikoProgress : ''}</div>
                     </div>`
             document.querySelector('#' + templateId)?.remove();
             document.body.insertAdjacentHTML('beforeend', template);
-
             document.querySelector('#kiko-images').addEventListener('click', downloadImages)
             document.querySelector('#kiko-shades').addEventListener('click', downloadShades)
-            // document.querySelector('#kiko-all').addEventListener('click', downloadAll)
             findShades();
-
         } catch (e) {
             console.error(e)
         }
